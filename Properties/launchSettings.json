@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StarRuptureSaveFixer": {
+      "commandName": "Project",
+      "commandLineArgs": "-file \"C:\\Users\\markp\\source\\repos\\StarRuptureSaveFixer\\examples\\AutoSave0.sav\" -fixdrones"
+    }
+  }
+}
