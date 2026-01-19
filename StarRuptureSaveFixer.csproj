@@ -9,6 +9,11 @@
     <StartupObject>StarRuptureSaveFixer.App</StartupObject>
     <ApplicationDefinition>Remove</ApplicationDefinition>
 
+    <!-- Version Information -->
+    <Version>1.0.5</Version>
+    <AssemblyVersion>1.0.5</AssemblyVersion>
+    <FileVersion>1.0.5</FileVersion>
+
     <!-- Self-contained deployment settings -->
     <SelfContained>true</SelfContained>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>

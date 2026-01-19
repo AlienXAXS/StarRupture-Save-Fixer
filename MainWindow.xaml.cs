@@ -13,13 +13,57 @@ namespace StarRuptureSaveFixer;
 public partial class MainWindow : Window
 {
     private readonly SaveFileService _saveFileService;
+    private readonly UpdateChecker _updateChecker;
 
     public MainWindow()
     {
         InitializeComponent();
         _saveFileService = new SaveFileService();
+        _updateChecker = new UpdateChecker();
         LogMessage("Welcome to Star Rupture Save File Fixer!", "Info");
         LogMessage("Select a save file and choose a fix option to get started.", "Info");
+
+        // Check for updates asynchronously
+        _ = CheckForUpdatesAsync();
+    }
+
+    private async Task CheckForUpdatesAsync()
+    {
+        var updateInfo = await _updateChecker.CheckForUpdatesAsync();
+
+        if (updateInfo != null && updateInfo.UpdateAvailable)
+        {
+            LogMessage($"Update available! Current: v{updateInfo.CurrentVersion}, Latest: v{updateInfo.LatestVersion}", "Info");
+
+            var result = MessageBox.Show(
+                $"A new version is available!\n\n" +
+                $"Current version: v{updateInfo.CurrentVersion}\n" +
+                $"Latest version: v{updateInfo.LatestVersion}\n\n" +
+                $"Would you like to download the update?",
+                "Update Available",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Information);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = updateInfo.DownloadUrl,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"Failed to open download page: {ex.Message}", "Error");
+                }
+            }
+        }
+        else if (updateInfo != null)
+        {
+            LogMessage($"You're running the latest version (v{updateInfo.CurrentVersion})", "Info");
+        }
     }
 
     private void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -172,6 +216,12 @@ public partial class MainWindow : Window
 
     private void LogMessage(string message, string type = "Info")
     {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(() => LogMessage(message, type));
+            return;
+        }
+
         string timestamp = DateTime.Now.ToString("HH:mm:ss");
         string prefix = type switch
         {
