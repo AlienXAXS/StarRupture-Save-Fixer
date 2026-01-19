@@ -1,0 +1,68 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish --configuration Release --no-build --output ./publish
+
+    - name: Get version from commit
+      id: version
+      shell: pwsh
+      run: |
+        $version = "v1.0.${{ github.run_number }}"
+        echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        name: Release ${{ steps.version.outputs.VERSION }}
+        body: |
+          ## Star Rupture Save File Fixer - Release ${{ steps.version.outputs.VERSION }}
+
+          ### What's Changed
+          - Automated build from commit ${{ github.sha }}
+
+          ### Installation
+          1. Download `StarRuptureSaveFixer.exe` below
+          2. Run the executable
+          3. Select your save file and choose a fix option
+
+          ### Features
+          - Fix Drones: Removes drones with invalid targets
+          - Remove All Drones: Completely removes all drones from save file
+          - Automatic backup: Original file is backed up as `*_original.sav`
+
+          Visit [StarRupture-Utilities.com](https://StarRupture-Utilities.com) for more tools!
+        files: |
+          ./publish/StarRuptureSaveFixer.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
