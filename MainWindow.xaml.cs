@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using StarRuptureSaveFixer.Fixers;
 using StarRuptureSaveFixer.Models;
 using StarRuptureSaveFixer.Services;
+using StarRuptureSaveFixer.Utils;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -26,7 +27,8 @@ public partial class MainWindow : Window
         var openFileDialog = new OpenFileDialog
         {
             Filter = "Save Files (*.sav)|*.sav|All Files (*.*)|*.*",
-            Title = "Select Star Rupture Save File"
+            Title = "Select Star Rupture Save File",
+            InitialDirectory = SavePathHelper.GetDefaultSavePath()
         };
 
         if (openFileDialog.ShowDialog() == true)
