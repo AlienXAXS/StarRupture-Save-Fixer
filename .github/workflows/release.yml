@@ -4,9 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '**.cs'
+      - '**.xaml'
+      - '**.csproj'
+      - '**.sln'
+      - '.github/workflows/**'
   pull_request:
     branches:
       - main
+    paths:
+      - '**.cs'
+      - '**.xaml'
+      - '**.csproj'
+      - '**.sln'
+      - '.github/workflows/**'
 permissions:
   contents: write
 jobs:
