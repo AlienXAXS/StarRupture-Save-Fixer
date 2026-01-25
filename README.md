@@ -7,9 +7,12 @@ A Windows desktop application for managing and repairing save files for the game
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Screenshots
-<img width="936" height="843" alt="image" src="https://github.com/user-attachments/assets/4ec138e2-6c0b-417f-9013-64e0e10211d6" />
-<img width="936" height="843" alt="image" src="https://github.com/user-attachments/assets/ebaf49dc-dcc2-4d30-b171-6a61d9584a4e" />
-<img width="936" height="843" alt="image" src="https://github.com/user-attachments/assets/90766047-d01d-4704-aaa2-d145cb8589a9" />
+<img width="374" height="337" alt="image" src="https://github.com/user-attachments/assets/4ec138e2-6c0b-417f-9013-64e0e10211d6" />
+
+<img width="374" height="337" alt="image" src="https://github.com/user-attachments/assets/ebaf49dc-dcc2-4d30-b171-6a61d9584a4e" />
+
+<img width="374" height="337" alt="image" src="https://github.com/user-attachments/assets/90766047-d01d-4704-aaa2-d145cb8589a9" />
+
 
 ## Features
 
