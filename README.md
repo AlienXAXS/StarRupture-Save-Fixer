@@ -1,4 +1,4 @@
-# Star Rupture Save Fixer
+# Star Rupture Save Manager
 
 A Windows desktop application for managing and repairing save files for the game **Star Rupture**. This utility helps fix corrupted saves, manage game sessions, and sync saves via FTP.
 
