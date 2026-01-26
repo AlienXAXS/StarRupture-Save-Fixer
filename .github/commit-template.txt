@@ -1,0 +1,26 @@
+# Commit Message Template
+# 
+# Format: <type>: <subject>
+#
+# Types:
+#   feat:     New feature
+#   fix:      Bug fix
+#   update:   Improvement to existing feature  
+#   remove:   Removed feature/code
+#   refactor: Code restructuring (no behavior change)
+#   docs:     Documentation changes
+#   chore:    Maintenance (dependencies, build, etc.)
+#
+# Subject:
+#   - Use imperative mood ("Add" not "Added")
+#   - Start with capital letter
+#   - No period at the end
+#   - Maximum 50 characters
+#
+# Examples:
+#   feat: Add FTP connection timeout setting
+#   fix: Resolve memory leak in session manager
+#   update: Improve error messages in save parser
+#   remove: Delete deprecated auto-save feature
+#
+# This becomes your release notes! Make it user-friendly.

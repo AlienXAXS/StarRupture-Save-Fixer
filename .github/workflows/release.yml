@@ -19,8 +19,10 @@ on:
       - '**.csproj'
       - '**.sln'
       - '.github/workflows/**'
+
 permissions:
   contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -28,11 +30,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for changelog generation
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.0.x'
+     dotnet-version: '8.0.x'
 
     - name: Restore dependencies
       run: dotnet restore
@@ -40,15 +44,36 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Publish
+  - name: Publish
       run: dotnet publish --configuration Release --no-build --output ./publish
 
-    - name: Get version from commit
+    - name: Get version and changelog
       id: version
       shell: pwsh
       run: |
-        $version = "v1.0.${{ github.run_number }}"
+        # Get version from build number
+     $version = "v1.0.${{ github.run_number }}"
         echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+        
+   # Get previous tag
+        $previousTag = git describe --tags --abbrev=0 2>$null
+if (-not $previousTag) {
+     $previousTag = git rev-list --max-parents=0 HEAD
+ }
+    
+        # Generate changelog from commit messages
+        $commits = git log "$previousTag..HEAD" --pretty=format:"- %s" --no-merges
+        
+   # Create changelog content
+  $changelog = @"
+     ## What's Changed
+        
+        $commits
+        "@
+    
+    # Escape for GitHub Actions
+        $changelog = $changelog -replace "`r`n", "%0A" -replace "`n", "%0A"
+      echo "CHANGELOG=$changelog" >> $env:GITHUB_OUTPUT
 
     - name: Create Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -57,25 +82,32 @@ jobs:
         tag_name: ${{ steps.version.outputs.VERSION }}
         name: Release ${{ steps.version.outputs.VERSION }}
         body: |
-          ## Star Rupture Save File Fixer - Release ${{ steps.version.outputs.VERSION }}
-
-          ### What's Changed
-          - Automated build from commit ${{ github.sha }}
-
-          ### Installation
+     # Star Rupture Save Manager - ${{ steps.version.outputs.VERSION }}
+          
+          ${{ steps.version.outputs.CHANGELOG }}
+          
+   ---
+ 
+       ## Installation
+     
           1. Download `StarRuptureSaveFixer.exe` below
-          2. Run the executable
-          3. Select your save file and choose a fix option
-
-          ### Features
-          - Fix Drones: Removes drones with invalid targets
-          - Remove All Drones: Completely removes all drones from save file
-          - Automatic backup: Original file is backed up as `*_original.sav`
-
-          Visit [StarRupture-Utilities.com](https://StarRupture-Utilities.com) for more tools!
-        files: |
+       2. Run the executable (no installation required)
+   3. The app will auto-detect your Steam save location
+      
+       ## Usage
+        
+          - **Save Browser**: Fix corrupted save files
+          - **Session Manager**: Copy saves between game sessions
+          - **FTP Sync**: Upload/download saves to remote server
+          
+  **Note**: Original files are automatically backed up as `*_original.sav`
+          
+          ---
+          
+          Visit [StarRupture-Utilities.com](https://StarRupture-Utilities.com) for more information!
+  files: |
           ./publish/StarRuptureSaveFixer.exe
-        draft: false
+     draft: false
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
