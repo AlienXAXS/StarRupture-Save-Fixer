@@ -108,6 +108,6 @@ jobs:
         files: |
           ./publish/StarRuptureSaveFixer.exe
       draft: false
-        prerelease: false
+      prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
