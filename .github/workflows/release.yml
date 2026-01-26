@@ -2,7 +2,8 @@ name: Build and Release
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - '**/*.cs'
       - '**/*.xaml'
@@ -10,7 +11,8 @@ on:
       - '**/*.sln'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - '**/*.cs'
       - '**/*.xaml'
@@ -29,7 +31,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for changelog generation
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -49,26 +51,22 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          # Get version from build number
           $version = "v1.0.${{ github.run_number }}"
           "VERSION=$version" >> $env:GITHUB_OUTPUT
 
-          # Get previous tag (if none, use first commit)
           $previousTag = git describe --tags --abbrev=0 2>$null
           if (-not $previousTag) {
             $previousTag = git rev-list --max-parents=0 HEAD
           }
 
-          # Generate changelog from commit messages
-          $commits = git log "$previousTag..HEAD" --pretty=format:"- %s" --no-merges
+          $commitLines = git log "$previousTag..HEAD" --pretty=format:"- %s" --no-merges
+          $commits = ($commitLines -join "`n")
 
           $changelog = @"
           ## What's Changed
-
           $commits
           "@
 
-          # Multiline output (recommended)
           "CHANGELOG<<EOF" >> $env:GITHUB_OUTPUT
           $changelog >> $env:GITHUB_OUTPUT
           "EOF" >> $env:GITHUB_OUTPUT
