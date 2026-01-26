@@ -1,0 +1,89 @@
+<Project>
+  <Target Name="SetVersionFromGitHub" BeforeTargets="BeforeBuild">
+    <PropertyGroup>
+      <GitHubOwner>AlienXAXS</GitHubOwner>
+      <GitHubRepo>StarRupture-Save-Manager</GitHubRepo>
+      <GitHubApiUrl>https://api.github.com/repos/$(GitHubOwner)/$(GitHubRepo)/releases/latest</GitHubApiUrl>
+    </PropertyGroup>
+
+    <!-- Fetch latest release from GitHub -->
+    <GetLatestGitHubVersion
+      ApiUrl="$(GitHubApiUrl)"
+      FallbackVersion="$(Version)">
+  <Output TaskParameter="NextVersion" PropertyName="CalculatedVersion" />
+    </GetLatestGitHubVersion>
+
+    <!-- Update version properties -->
+    <PropertyGroup>
+      <Version>$(CalculatedVersion)</Version>
+      <AssemblyVersion>$(CalculatedVersion)</AssemblyVersion>
+      <FileVersion>$(CalculatedVersion)</FileVersion>
+    </PropertyGroup>
+
+    <Message Text="Auto-versioning: Building as version $(CalculatedVersion)" Importance="high" />
+  </Target>
+
+  <!-- Custom task to get GitHub version -->
+  <UsingTask TaskName="GetLatestGitHubVersion" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <ApiUrl ParameterType="System.String" Required="true" />
+   <FallbackVersion ParameterType="System.String" Required="true" />
+      <NextVersion ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+  <Task>
+      <Using Namespace="System" />
+<Using Namespace="System.Net.Http" />
+ <Using Namespace="System.Text.RegularExpressions" />
+      <Using Namespace="System.Threading.Tasks" />
+      <Code Type="Fragment" Language="cs">
+<![CDATA[
+        try
+        {
+  using (var client = new HttpClient())
+          {
+      client.DefaultRequestHeaders.Add("User-Agent", "MSBuild-Auto-Version");
+  client.Timeout = TimeSpan.FromSeconds(5);
+     
+          var response = client.GetAsync(ApiUrl).Result;
+    
+                if (response.IsSuccessStatusCode)
+      {
+    var json = response.Content.ReadAsStringAsync().Result;
+          
+           // Extract version from tag_name using regex
+          var match = Regex.Match(json, "\"tag_name\"\\s*:\\s*\"v?([0-9]+\\.[0-9]+\\.[0-9]+)\"");
+            
+         if (match.Success)
+                  {
+   var latestVersion = match.Groups[1].Value;
+        var parts = latestVersion.Split('.');
+          
+       if (parts.Length == 3)
+{
+    int major = int.Parse(parts[0]);
+             int minor = int.Parse(parts[1]);
+                 int patch = int.Parse(parts[2]);
+
+     // Auto-increment patch version
+      NextVersion = $"{major}.{minor}.{patch + 1}";
+         Log.LogMessage(MessageImportance.High, $"GitHub latest: {latestVersion} -> Next: {NextVersion}");
+       return true;
+   }
+      }
+      }
+       }
+    }
+      catch (Exception ex)
+        {
+          Log.LogWarning($"Could not fetch GitHub version: {ex.Message}");
+  }
+
+        // Fallback: use current version from project file
+        NextVersion = FallbackVersion;
+        Log.LogMessage(MessageImportance.High, $"Using fallback version: {NextVersion}");
+        return true;
+]]>
+   </Code>
+    </Task>
+  </UsingTask>
+</Project>

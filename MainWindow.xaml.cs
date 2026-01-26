@@ -37,9 +37,4 @@ public partial class MainWindow : Window
     {
         _viewModel.OpenUpdatePage();
     }
-
-    private void FtpUploadView_Loaded(object sender, RoutedEventArgs e)
-    {
-
-    }
 }

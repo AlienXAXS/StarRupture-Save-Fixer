@@ -70,7 +70,7 @@ public partial class FtpService
             var result = await client.UploadFile(
                 localPath,
                 fullRemotePath,
-                FtpRemoteExists.Overwrite,
+                FtpRemoteExists.NoCheck,
                 createRemoteDir: true,
                 progress: new Progress<FtpProgress>(p =>
                 {
@@ -248,7 +248,7 @@ public partial class FtpService
             var result = await client.UploadFile(
                 localPath,
                 fullRemotePath,
-                FtpRemoteExists.Overwrite,
+                FtpRemoteExists.NoCheck,
                 createRemoteDir: true,
                 progress: new Progress<FtpProgress>(p =>
                 {

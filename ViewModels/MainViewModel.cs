@@ -23,8 +23,7 @@ public class MainViewModel : ViewModelBase
 
         SaveBrowser = new SaveBrowserViewModel(customPath);
         SessionManager = new SessionManagerViewModel(customPath);
-        FtpUpload = new FtpUploadViewModel(customPath);
-        FtpDownload = new FtpDownloadViewModel(customPath);
+        FtpSync = new FtpSyncViewModel(customPath);
         Settings = new SettingsViewModel(OnSettingsChanged);
 
         // Check for updates asynchronously
@@ -33,8 +32,7 @@ public class MainViewModel : ViewModelBase
 
     public SaveBrowserViewModel SaveBrowser { get; }
     public SessionManagerViewModel SessionManager { get; }
-    public FtpUploadViewModel FtpUpload { get; }
-    public FtpDownloadViewModel FtpDownload { get; }
+    public FtpSyncViewModel FtpSync { get; }
     public SettingsViewModel Settings { get; }
 
     private void OnSettingsChanged()
@@ -45,8 +43,7 @@ public class MainViewModel : ViewModelBase
 
         SaveBrowser.UpdateCustomPath(customPath);
         SessionManager.UpdateCustomPath(customPath);
-        FtpUpload.UpdateCustomPath(customPath);
-        FtpDownload.UpdateCustomPath(customPath);
+        FtpSync.UpdateCustomPath(customPath);
 
         RefreshAll();
     }
@@ -109,7 +106,6 @@ public class MainViewModel : ViewModelBase
     {
         SaveBrowser.Refresh();
         SessionManager.Refresh();
-        FtpUpload.Refresh();
-        FtpDownload.Refresh();
+        FtpSync.Refresh();
     }
 }

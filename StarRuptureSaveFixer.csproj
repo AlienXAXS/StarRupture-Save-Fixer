@@ -10,6 +10,8 @@
     <ApplicationDefinition>Remove</ApplicationDefinition>
 
     <!-- Version Information -->
+    <!-- Set AutoVersionFromGitHub=false to disable auto-versioning -->
+    <AutoVersionFromGitHub Condition="'$(AutoVersionFromGitHub)' == ''">true</AutoVersionFromGitHub>
     <Version>1.0.8</Version>
     <AssemblyVersion>1.0.8</AssemblyVersion>
     <FileVersion>1.0.8</FileVersion>
@@ -31,5 +33,8 @@
     <ApplicationDefinition Remove="App.xaml" />
     <Page Include="App.xaml" />
   </ItemGroup>
+
+  <!-- Import auto-versioning (only when enabled) -->
+  <Import Project="Build\AutoVersion.targets" Condition="'$(AutoVersionFromGitHub)' == 'true'" />
 
 </Project>

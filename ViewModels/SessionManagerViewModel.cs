@@ -1,7 +1,6 @@
 using StarRuptureSaveFixer.Models;
 using StarRuptureSaveFixer.Services;
 using System.Collections.ObjectModel;
-using System.Windows;
 using System.Windows.Input;
 
 namespace StarRuptureSaveFixer.ViewModels;
@@ -13,7 +12,6 @@ public class SessionManagerViewModel : ViewModelBase
     private SaveSession? _sourceSession;
     private SaveSession? _targetSession;
     private SaveFileInfo? _selectedSourceFile;
-    private string _newSessionName = "";
     private string _statusMessage = "";
 
     public SessionManagerViewModel(string? customPath = null)
@@ -24,7 +22,6 @@ public class SessionManagerViewModel : ViewModelBase
         Sessions = new ObservableCollection<SaveSession>();
 
         CopySaveCommand = new RelayCommand(CopySave, () => CanCopySave);
-        DeleteSessionCommand = new RelayCommand(DeleteSession, () => CanDeleteSession);
         RefreshCommand = new RelayCommand(Refresh);
 
         Refresh();
@@ -82,37 +79,18 @@ public class SessionManagerViewModel : ViewModelBase
     public IEnumerable<SaveFileInfo> TargetFiles =>
         TargetSession?.SaveFiles ?? Enumerable.Empty<SaveFileInfo>();
 
-    public string NewSessionName
-    {
-        get => _newSessionName;
-        set
-        {
-            if (SetProperty(ref _newSessionName, value))
-            {
-                OnPropertyChanged(nameof(CanCreateSession));
-            }
-        }
-    }
-
     public string StatusMessage
     {
         get => _statusMessage;
         set => SetProperty(ref _statusMessage, value);
     }
 
-    public bool CanCreateSession => false; // Feature removed
-
     public bool CanCopySave =>
         SelectedSourceFile != null &&
         TargetSession != null &&
         SourceSession != TargetSession;
 
-    public bool CanDeleteSession =>
-        TargetSession != null &&
-        !string.IsNullOrEmpty(TargetSession.Name); // Can't delete root
-
     public ICommand CopySaveCommand { get; }
-    public ICommand DeleteSessionCommand { get; }
     public ICommand RefreshCommand { get; }
 
     public void Refresh()
@@ -154,44 +132,5 @@ public class SessionManagerViewModel : ViewModelBase
         {
             StatusMessage = "Failed to copy save file.";
         }
-    }
-
-    private void DeleteSession()
-    {
-        if (TargetSession == null || string.IsNullOrEmpty(TargetSession.Name))
-            return;
-
-        var result = MessageBox.Show(
-            $"Are you sure you want to delete session '{TargetSession.Name}'?\n\n" +
-            $"This will permanently delete {TargetSession.SaveCount} save file(s).",
-            "Confirm Delete",
-            MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-
-        if (result != MessageBoxResult.Yes)
-            return;
-
-        var sessionName = TargetSession.Name;
-        var deleted = _sessionManager.DeleteSession(TargetSession.FullPath);
-
-        if (deleted)
-        {
-            StatusMessage = $"Session '{sessionName}' deleted.";
-            TargetSession = null;
-            Refresh();
-        }
-        else
-        {
-            StatusMessage = "Failed to delete session.";
-        }
-    }
-
-    private static bool IsValidFolderName(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name))
-            return false;
-
-        char[] invalidChars = System.IO.Path.GetInvalidFileNameChars();
-        return !name.Any(c => invalidChars.Contains(c));
     }
 }

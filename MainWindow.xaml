@@ -59,11 +59,8 @@
             <TabItem Header="Session Manager">
                 <views:SessionManagerView DataContext="{Binding SessionManager}"/>
             </TabItem>
-            <TabItem Header="FTP Upload">
-                <views:FtpUploadView DataContext="{Binding FtpUpload}" Loaded="FtpUploadView_Loaded"/>
-            </TabItem>
-            <TabItem Header="FTP Download">
-                <views:FtpDownloadView DataContext="{Binding FtpDownload}"/>
+            <TabItem Header="FTP Sync">
+                <views:FtpSyncView DataContext="{Binding FtpSync}"/>
             </TabItem>
             <TabItem Header="Settings">
                 <views:SettingsView DataContext="{Binding Settings}"/>

@@ -37,12 +37,67 @@ public partial class FtpFolderBrowserDialog : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        // Test connection first before loading directory
+        if (!await TestConnectionAsync())
+        {
+            StatusTextBlock.Text = "Connection failed. Please check your FTP settings.";
+            SelectButton.IsEnabled = false;
+
+            // Close the dialog since connection failed
+            DialogResult = false;
+            Close();
+            return;
+        }
+
         await LoadDirectoryAsync(_initialPath);
     }
 
     private void OnClosing(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         CancelCurrentOperation();
+    }
+
+    private async Task<bool> TestConnectionAsync()
+    {
+        CancelCurrentOperation();
+        _cts = new CancellationTokenSource();
+        var token = _cts.Token;
+
+        SetLoading(true, "Testing connection...");
+        StatusTextBlock.Text = "Testing connection...";
+
+        try
+        {
+            var (success, message) = await _ftpService.TestConnectionAsync(_settings, _password, token);
+
+            if (token.IsCancellationRequested)
+                return false;
+
+            if (!success)
+            {
+                StatusTextBlock.Text = $"Connection failed: {message}";
+                MessageBox.Show($"Failed to connect to FTP server:\n\n{message}", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            StatusTextBlock.Text = "Connection successful";
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            StatusTextBlock.Text = "Connection test cancelled";
+            return false;
+        }
+        catch (Exception ex)
+        {
+            StatusTextBlock.Text = $"Connection error: {ex.Message}";
+            MessageBox.Show($"Failed to connect to FTP server:\n\n{ex.Message}", "Connection Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return false;
+        }
+        finally
+        {
+            SetLoading(false);
+        }
     }
 
     private void SetLoading(bool loading, string message = "Loading...")
